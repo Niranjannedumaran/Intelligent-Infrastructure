@@ -1,0 +1,607 @@
+<html lang="en" class="dark"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Niranjan - Intelligent Infrastructure</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Manrope:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+
+<script>
+// Configure Tailwind for 3D transforms and custom font settings
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        manrope: ['Manrope', 'sans-serif'],
+      },
+      colors: {
+        slate: {
+          850: '#151b2b',
+          900: '#0B0D15', // Deep background
+          950: '#020412', // Darker background
+        }
+      },
+      animation: {
+        'spin-slow': 'spin 3s linear infinite',
+      }
+    }
+  },
+  plugins: [
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.rotate-x-6': { transform: 'rotateX(6deg)' },
+        '.rotate-x-12': { transform: 'rotateX(12deg)' },
+        '.perspective-1000': { perspective: '1000px' },
+        '.perspective-distant': { perspective: '1200px' },
+        '.transform-style-3d': { transformStyle: 'preserve-3d' },
+        '.backface-hidden': { backfaceVisibility: 'hidden' },
+      }
+      addUtilities(newUtilities)
+    }
+  ]
+};
+</script>
+
+<style>
+:root {
+  --font-inter: 'Inter', sans-serif;
+  --mouse-x: 0px;
+  --mouse-y: 0px;
+}
+body {
+  font-family: var(--font-inter);
+  background-color: #020412;
+  overflow-x: hidden;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Animations */
+@keyframes clipReveal {
+  0% { opacity: 0; transform: translateY(20px) scale(0.98); filter: blur(10px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+.animate-intro { animation: clipReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes dash { to { stroke-dashoffset: 0; } }
+.noodle-path { stroke-dasharray: 10; stroke-dashoffset: 200; animation: dash 2s linear infinite; }
+
+/* Flashlight/Glow Cards */
+.flashlight-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.flashlight-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(600px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(255, 255, 255, 0.06), transparent 40%);
+  z-index: 1; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+}
+.flashlight-card:hover::before { opacity: 1; }
+.flashlight-card::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(400px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(99, 102, 241, 0.15), transparent 40%);
+  z-index: 2; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude; -webkit-mask-composite: xor;
+  padding: 1px; border-radius: inherit;
+}
+.flashlight-card:hover::after { opacity: 1; }
+
+/* Aurora Background */
+@keyframes aurora-move {
+  0% { background-position: 0% 50%; transform: scale(1); }
+  50% { background-position: 100% 50%; transform: scale(1.1); }
+  100% { background-position: 0% 50%; transform: scale(1); }
+}
+
+/* Text Shimmer/Reflections */
+@keyframes reflection-loop {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.title-reflection {
+  background: linear-gradient(110deg, #ffffff 45%, #a5f3fc 50%, #ffffff 55%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  animation: reflection-loop 6s ease-in-out infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
+
+/* Utility */
+.mask-gradient-y {
+  mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+}
+</style>
+</head>
+
+<body class="min-h-screen selection:bg-indigo-500/30 text-slate-300 antialiased">
+
+  <!-- Background Layer -->
+  <div class="fixed -z-50 overflow-hidden w-full h-full top-0 left-0">
+    <div class="absolute inset-0" style="background: linear-gradient(rgb(2, 4, 18) 0%, rgb(5, 8, 28) 45%, rgb(10, 15, 45) 100%);"></div>
+    <!-- Moving Aurora Glow -->
+    <div class="pointer-events-none opacity-30 mix-blend-screen absolute inset-0" style="background: radial-gradient(circle at 50% 100%, #4f46e5, transparent 50%); animation: aurora-move 15s ease-in-out infinite;">
+    </div>
+    <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="fixed z-50 top-0 w-full border-b border-white/5 bg-[#020412]/60 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <!-- Logo: Niranjan -->
+      <a href="/" class="flex items-center gap-2 group">
+        <div class="relative w-8 h-8 flex items-center justify-center bg-gradient-to-tr from-indigo-500 to-cyan-400 rounded-lg text-white font-manrope font-bold text-lg shadow-[0_0_15px_rgba(99,102,241,0.5)] group-hover:shadow-[0_0_25px_rgba(99,102,241,0.7)] transition-shadow duration-500">
+          N
+        </div>
+        <span class="font-manrope font-medium text-white tracking-tight">Niranjan</span>
+      </a>
+
+      <!-- Desktop Links -->
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
+        <a href="#" class="hover:text-white transition-colors font-manrope">Platform</a>
+        <a href="#" class="hover:text-white transition-colors font-manrope">Solutions</a>
+        <a href="#" class="hover:text-white transition-colors font-manrope">Pricing</a>
+        <a href="#" class="hover:text-white transition-colors font-manrope">Docs</a>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-4">
+        <a href="#" class="hidden sm:block text-sm font-medium text-slate-300 hover:text-white transition-colors font-manrope">Log in</a>
+        <a href="#" class="text-sm font-medium text-black bg-white hover:bg-slate-200 transition-colors px-4 py-2 rounded-full font-manrope shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+          Sign up
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <main class="relative pt-32 pb-20 overflow-hidden flex flex-col items-center">
+    
+    <div class="animate-intro z-10 text-center max-w-4xl mx-auto px-6">
+      
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs font-medium text-indigo-300 mb-8 backdrop-blur-sm">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+        </span>
+        Introducing Niranjan 2.0
+      </div>
+
+      <h1 class="text-4xl md:text-7xl font-semibold tracking-tight leading-[1.1] mb-6 font-manrope text-white">
+        <span class="title-reflection">The infrastructure</span><br>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-slate-400 to-slate-200">for modern developers</span>
+      </h1>
+
+      <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed font-manrope">
+        Deploy full-stack applications instantly. Niranjan handles the complexity of global scaling, so you can focus on writing code.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <button class="group relative px-6 py-3 bg-white text-black rounded-full font-semibold text-sm transition-transform active:scale-95 overflow-hidden">
+          <span class="relative z-10 flex items-center gap-2 font-manrope">
+            Start Deploying
+            <span class="iconify" data-icon="lucide:arrow-right" data-width="16" data-stroke-width="1.5"></span>
+          </span>
+          <div class="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500/0 via-indigo-500/20 to-indigo-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+        </button>
+        
+        <button class="px-6 py-3 bg-white/5 border border-white/10 text-white rounded-full font-medium text-sm hover:bg-white/10 transition-colors font-manrope flex items-center gap-2">
+          <span class="iconify" data-icon="lucide:book" data-width="16" data-stroke-width="1.5"></span>
+          Documentation
+        </button>
+      </div>
+    </div>
+
+    <!-- Interface Mockup -->
+    <div class="animate-intro w-full max-w-6xl mx-auto mt-20 px-4 perspective-1000">
+      <div class="relative bg-[#0B0D15]/80 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden ring-1 ring-white/5 transform rotate-x-6 hover:rotate-x-0 transition-transform duration-700 ease-out group">
+        
+        <!-- Window Controls -->
+        <div class="h-12 border-b border-white/5 bg-white/[0.02] flex items-center justify-between px-4">
+          <div class="flex gap-2">
+            <div class="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
+            <div class="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
+            <div class="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
+          </div>
+          
+          <!-- Breadcrumb -->
+          <div class="flex items-center gap-2 text-xs font-medium text-slate-500 font-manrope">
+            <span class="text-slate-300">niranjan-org</span>
+            <span class="iconify" data-icon="lucide:chevron-right" data-width="12"></span>
+            <span class="text-slate-300">dashboard</span>
+            <span class="iconify" data-icon="lucide:chevron-right" data-width="12"></span>
+            <span class="bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20">main</span>
+          </div>
+
+          <div class="w-16"></div> <!-- Spacer -->
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="p-8 min-h-[500px] bg-[#050710] relative overflow-hidden">
+           <!-- Grid Background -->
+           <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+
+           <!-- Connectivity Lines SVG -->
+           <svg class="absolute inset-0 w-full h-full pointer-events-none z-0">
+             <path d="M 320 200 C 400 200, 400 200, 460 200" stroke="url(#gradient-line)" stroke-width="1.5" fill="none" class="hidden md:block noodle-path" stroke-dasharray="8 8"></path>
+             <defs>
+               <linearGradient id="gradient-line" x1="0" y1="0" x2="1" y2="0">
+                 <stop offset="0%" stop-color="#6366f1" stop-opacity="0"></stop>
+                 <stop offset="50%" stop-color="#6366f1" stop-opacity="1"></stop>
+                 <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"></stop>
+               </linearGradient>
+             </defs>
+           </svg>
+
+           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 max-w-5xl mx-auto pt-10">
+             
+             <!-- Card 1: Network -->
+             <div class="flashlight-card rounded-xl p-5 bg-[#0F111A]">
+               <div class="flex items-center justify-between mb-6">
+                 <div class="flex items-center gap-3">
+                   <div class="p-2 bg-blue-500/10 rounded-lg text-blue-400 border border-blue-500/20">
+                     <span class="iconify" data-icon="lucide:globe" data-width="20" data-stroke-width="1.5"></span>
+                   </div>
+                   <div class="text-sm font-semibold text-white font-manrope">Global Edge</div>
+                 </div>
+                 <span class="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse"></span>
+               </div>
+               <div class="space-y-3">
+                 <div class="flex justify-between text-xs text-slate-400 font-manrope">
+                   <span class="flex items-center gap-2"><span class="iconify" data-icon="lucide:shield-check" data-width="14"></span> Protection</span>
+                   <span class="text-emerald-400">Active</span>
+                 </div>
+                 <div class="flex justify-between text-xs text-slate-400 font-manrope">
+                   <span class="flex items-center gap-2"><span class="iconify" data-icon="lucide:zap" data-width="14"></span> Latency</span>
+                   <span class="text-white">24ms</span>
+                 </div>
+                 <div class="h-1 w-full bg-white/5 rounded-full mt-2 overflow-hidden">
+                   <div class="h-full bg-blue-500 w-3/4 rounded-full"></div>
+                 </div>
+               </div>
+             </div>
+
+             <!-- Card 2: Compute (Center) -->
+             <div class="flashlight-card rounded-xl p-0 bg-[#0F111A] ring-1 ring-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.15)] transform md:-translate-y-4">
+               <div class="p-5 border-b border-white/5">
+                 <div class="flex items-center justify-between mb-2">
+                   <div class="flex items-center gap-3">
+                     <div class="p-2 bg-indigo-500/10 rounded-lg text-indigo-400 border border-indigo-500/20">
+                       <span class="iconify" data-icon="lucide:cpu" data-width="20" data-stroke-width="1.5"></span>
+                     </div>
+                     <div>
+                       <div class="text-sm font-semibold text-white font-manrope">Niranjan Core</div>
+                       <div class="text-[10px] text-slate-500 font-mono">us-east-1</div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+               <div class="p-5 space-y-4">
+                 <div class="flex items-center justify-between text-xs font-manrope">
+                   <span class="text-slate-400">Status</span>
+                   <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">Healthy</span>
+                 </div>
+                 <div class="space-y-1">
+                   <div class="flex justify-between text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
+                     <span>CPU Usage</span>
+                     <span>42%</span>
+                   </div>
+                   <!-- Usage Visualization -->
+                   <div class="flex gap-0.5 h-6 items-end">
+                     <div class="w-1 bg-indigo-500/40 h-[40%] rounded-sm"></div>
+                     <div class="w-1 bg-indigo-500/60 h-[60%] rounded-sm"></div>
+                     <div class="w-1 bg-indigo-500/50 h-[30%] rounded-sm"></div>
+                     <div class="w-1 bg-indigo-500/80 h-[70%] rounded-sm"></div>
+                     <div class="w-1 bg-indigo-500/40 h-[45%] rounded-sm"></div>
+                     <div class="w-1 bg-indigo-500/60 h-[55%] rounded-sm"></div>
+                     <div class="w-1 bg-indigo-500/30 h-[20%] rounded-sm"></div>
+                     <div class="w-1 bg-indigo-500/90 h-[80%] rounded-sm"></div>
+                     <div class="w-1 bg-indigo-500/50 h-[40%] rounded-sm"></div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+
+             <!-- Card 3: Database -->
+             <div class="flashlight-card rounded-xl p-5 bg-[#0F111A]">
+               <div class="flex items-center justify-between mb-6">
+                 <div class="flex items-center gap-3">
+                   <div class="p-2 bg-purple-500/10 rounded-lg text-purple-400 border border-purple-500/20">
+                     <span class="iconify" data-icon="lucide:database" data-width="20" data-stroke-width="1.5"></span>
+                   </div>
+                   <div class="text-sm font-semibold text-white font-manrope">Niranjan DB</div>
+                 </div>
+               </div>
+               <div class="space-y-3">
+                <div class="flex justify-between text-xs text-slate-400 font-manrope">
+                  <span class="flex items-center gap-2"><span class="iconify" data-icon="lucide:hard-drive" data-width="14"></span> Storage</span>
+                  <span class="text-white">1.2 GB</span>
+                </div>
+                <div class="flex justify-between text-xs text-slate-400 font-manrope">
+                  <span class="flex items-center gap-2"><span class="iconify" data-icon="lucide:activity" data-width="14"></span> IOPS</span>
+                  <span class="text-white">3,402</span>
+                </div>
+                <div class="flex justify-between text-xs text-slate-400 font-manrope">
+                  <span class="flex items-center gap-2"><span class="iconify" data-icon="lucide:copy" data-width="14"></span> Replicas</span>
+                  <span class="text-white">3</span>
+                </div>
+               </div>
+             </div>
+
+           </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Companies / Trusted By -->
+  <section class="border-t border-white/5 bg-black/20 py-16">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <p class="text-sm text-slate-500 font-manrope font-medium mb-8">POWERING NEXT-GEN COMPANIES</p>
+      <div class="flex flex-wrap justify-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
+        <!-- Using Iconify for simple SVGs to simulate logos -->
+        <span class="iconify text-white" data-icon="simple-icons:vercel" data-width="24"></span>
+        <span class="iconify text-white" data-icon="simple-icons:stripe" data-width="50"></span>
+        <span class="iconify text-white" data-icon="simple-icons:github" data-width="28"></span>
+        <span class="iconify text-white" data-icon="simple-icons:linear" data-width="28"></span>
+        <span class="iconify text-white" data-icon="simple-icons:raycast" data-width="28"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="py-32 relative">
+    <div class="max-w-7xl mx-auto px-6">
+      
+      <div class="mb-20 max-w-2xl">
+        <h2 class="text-3xl md:text-5xl font-semibold tracking-tight text-white font-manrope mb-6">
+          Everything you need to <span class="text-indigo-400">scale</span>.
+        </h2>
+        <p class="text-lg text-slate-400 leading-relaxed font-manrope">
+          Niranjan provides the building blocks for modern applications. 
+          Zero configuration, automated scaling, and enterprise-grade security out of the box.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- Feature 1 -->
+        <div class="group relative bg-[#0B0D15] border border-white/10 rounded-2xl p-8 hover:border-white/20 transition-colors overflow-hidden">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-500/20 transition-colors"></div>
+          <div class="relative z-10">
+            <div class="w-10 h-10 bg-indigo-500/10 rounded-lg border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-6">
+              <span class="iconify" data-icon="lucide:git-branch" data-width="20" data-stroke-width="1.5"></span>
+            </div>
+            <h3 class="text-lg font-semibold text-white mb-3 font-manrope">Git-based Deployments</h3>
+            <p class="text-sm text-slate-400 leading-relaxed font-manrope">
+              Push to your repository and Niranjan automatically builds and deploys your application. 
+              Zero downtime, instant rollbacks.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="group relative bg-[#0B0D15] border border-white/10 rounded-2xl p-8 hover:border-white/20 transition-colors overflow-hidden">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-cyan-500/20 transition-colors"></div>
+          <div class="relative z-10">
+            <div class="w-10 h-10 bg-cyan-500/10 rounded-lg border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-6">
+              <span class="iconify" data-icon="lucide:layout-grid" data-width="20" data-stroke-width="1.5"></span>
+            </div>
+            <h3 class="text-lg font-semibold text-white mb-3 font-manrope">Edge Functions</h3>
+            <p class="text-sm text-slate-400 leading-relaxed font-manrope">
+              Run serverless functions closer to your users. 
+              Reduced latency and improved performance with our global edge network.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="group relative bg-[#0B0D15] border border-white/10 rounded-2xl p-8 hover:border-white/20 transition-colors overflow-hidden">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-purple-500/20 transition-colors"></div>
+          <div class="relative z-10">
+            <div class="w-10 h-10 bg-purple-500/10 rounded-lg border border-purple-500/20 flex items-center justify-center text-purple-400 mb-6">
+              <span class="iconify" data-icon="lucide:shield-check" data-width="20" data-stroke-width="1.5"></span>
+            </div>
+            <h3 class="text-lg font-semibold text-white mb-3 font-manrope">Enterprise Security</h3>
+            <p class="text-sm text-slate-400 leading-relaxed font-manrope">
+              DDoS protection, automated SSL certificates, and WAF included on every plan. 
+              Compliant with SOC2 and GDPR.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Interactive Diagram Section -->
+  <section class="py-20 bg-slate-900/30 border-y border-white/5 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-20 items-center">
+      
+      <!-- Text Side -->
+      <div>
+        <h2 class="text-3xl font-semibold tracking-tight text-white font-manrope mb-6">
+          Observability built-in.
+        </h2>
+        <p class="text-slate-400 mb-8 font-manrope">
+          Monitor your entire stack from a single dashboard. Real-time logs, metrics, and traces for every request.
+        </p>
+        
+        <ul class="space-y-4">
+          <li class="flex items-start gap-3">
+            <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <span class="iconify" data-icon="lucide:check" data-width="12"></span>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-white font-manrope">Instant Logs</h4>
+              <p class="text-xs text-slate-500 font-manrope mt-1">Stream logs in real-time with zero latency.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <span class="iconify" data-icon="lucide:check" data-width="12"></span>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-white font-manrope">Custom Alerts</h4>
+              <p class="text-xs text-slate-500 font-manrope mt-1">Get notified via Slack or Email when thresholds are breached.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Interactive Graphic -->
+      <div class="relative h-[400px] w-full bg-[#050710] rounded-2xl border border-white/10 p-6 perspective-distant group">
+        <!-- Floating Elements -->
+        <div class="absolute top-10 left-10 z-20 w-48 bg-[#0F111A] border border-white/10 rounded-lg p-3 shadow-xl transform transition-transform duration-500 group-hover:translate-y-[-5px]">
+          <div class="flex items-center gap-2 mb-2 border-b border-white/5 pb-2">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+            <span class="text-xs text-slate-300 font-mono">Error Rate</span>
+          </div>
+          <div class="text-xl font-semibold text-white font-manrope">0.01%</div>
+        </div>
+
+        <div class="absolute bottom-12 right-12 z-20 w-56 bg-[#0F111A] border border-white/10 rounded-lg p-3 shadow-xl transform transition-transform duration-500 delay-100 group-hover:translate-y-[-5px]">
+          <div class="flex items-center gap-2 mb-2 border-b border-white/5 pb-2">
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+            <span class="text-xs text-slate-300 font-mono">Throughput</span>
+          </div>
+          <div class="text-xl font-semibold text-white font-manrope">45k req/s</div>
+          <div class="mt-2 h-8 flex items-end gap-1">
+            <div class="w-1/6 bg-blue-500/30 h-[40%] rounded-sm"></div>
+            <div class="w-1/6 bg-blue-500/50 h-[60%] rounded-sm"></div>
+            <div class="w-1/6 bg-blue-500/40 h-[30%] rounded-sm"></div>
+            <div class="w-1/6 bg-blue-500/70 h-[80%] rounded-sm"></div>
+            <div class="w-1/6 bg-blue-500/60 h-[50%] rounded-sm"></div>
+            <div class="w-1/6 bg-blue-500/90 h-[90%] rounded-sm"></div>
+          </div>
+        </div>
+
+        <!-- Central Hub -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border border-indigo-500/30 flex items-center justify-center">
+          <div class="w-24 h-24 rounded-full bg-indigo-500/10 border border-indigo-500/50 flex items-center justify-center relative">
+             <div class="absolute inset-0 rounded-full border border-indigo-400 opacity-20 animate-ping"></div>
+             <div class="text-2xl font-bold text-white font-manrope">N</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-32 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-950/20 to-transparent"></div>
+    <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+      <h2 class="text-4xl md:text-5xl font-semibold tracking-tight text-white font-manrope mb-8">
+        Ready to deploy with <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-300">Niranjan</span>?
+      </h2>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <button class="bg-white text-black px-8 py-3 rounded-full font-semibold text-sm hover:bg-slate-200 transition-colors font-manrope">
+          Get Started for Free
+        </button>
+        <button class="bg-transparent border border-white/20 text-white px-8 py-3 rounded-full font-medium text-sm hover:bg-white/5 transition-colors font-manrope">
+          Contact Sales
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 bg-[#020412] pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-16">
+        <div class="col-span-2 lg:col-span-2">
+           <a href="/" class="flex items-center gap-2 mb-4">
+            <div class="w-6 h-6 bg-indigo-500 rounded flex items-center justify-center text-white text-xs font-bold font-manrope">N</div>
+            <span class="font-manrope font-semibold text-white">Niranjan</span>
+           </a>
+           <p class="text-sm text-slate-500 font-manrope max-w-xs">
+             The intelligent cloud platform for modern engineering teams.
+           </p>
+        </div>
+        
+        <div>
+          <h4 class="text-white font-medium text-sm mb-4 font-manrope">Product</h4>
+          <ul class="space-y-2 text-sm text-slate-500">
+            <li><a href="#" class="hover:text-indigo-400 transition-colors">Infrastructure</a></li>
+            <li><a href="#" class="hover:text-indigo-400 transition-colors">Preview Environments</a></li>
+            <li><a href="#" class="hover:text-indigo-400 transition-colors">Edge Config</a></li>
+            <li><a href="#" class="hover:text-indigo-400 transition-colors">Pricing</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-white font-medium text-sm mb-4 font-manrope">Resources</h4>
+          <ul class="space-y-2 text-sm text-slate-500">
+            <li><a href="#" class="hover:text-indigo-400 transition-colors">Documentation</a></li>
+            <li><a href="#" class="hover:text-indigo-400 transition-colors">Guides</a></li>
+            <li><a href="#" class="hover:text-indigo-400 transition-colors">Changelog</a></li>
+            <li><a href="#" class="hover:text-indigo-400 transition-colors">Status</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-white font-medium text-sm mb-4 font-manrope">Company</h4>
+          <ul class="space-y-2 text-sm text-slate-500">
+            <li><a href="#" class="hover:text-indigo-400 transition-colors">About</a></li>
+            <li><a href="#" class="hover:text-indigo-400 transition-colors">Blog</a></li>
+            <li><a href="#" class="hover:text-indigo-400 transition-colors">Careers</a></li>
+            <li><a href="#" class="hover:text-indigo-400 transition-colors">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-xs text-slate-600 font-manrope">
+          © 2024 Niranjan Inc. All rights reserved.
+        </p>
+        <div class="flex gap-4 text-slate-500">
+          <a href="#" class="hover:text-white transition-colors"><span class="iconify" data-icon="lucide:github" data-width="16"></span></a>
+          <a href="#" class="hover:text-white transition-colors"><span class="iconify" data-icon="lucide:twitter" data-width="16"></span></a>
+          <a href="#" class="hover:text-white transition-colors"><span class="iconify" data-icon="lucide:linkedin" data-width="16"></span></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Flashlight Card Logic
+    const cards = document.querySelectorAll('.flashlight-card');
+    cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        });
+    });
+
+    // Button click effect
+    document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.classList.add('scale-95');
+            setTimeout(() => { this.classList.remove('scale-95'); }, 150);
+        });
+    });
+  </script>
+
+</body></html>
